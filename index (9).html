@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nightdesk – IT Helpdesk Ticketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#231d3d;--paper:#fbf7ff;--muted:#6b6485;--apricot:#f2a07b;--line:rgba(35,29,61,.16)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font:15px/1.5 "DM Sans",system-ui,sans-serif;color:#fdf3ff;background:linear-gradient(180deg,#1b1747 0%,#3d2468 38%,#a8456f 74%,#f0976f 100%) fixed}
+h1,h2,h3,h4{font-family:"Bricolage Grotesque","DM Sans",system-ui,sans-serif;margin:0}
+input,select,textarea,button{font:inherit}
+:focus-visible{outline:3px solid var(--apricot);outline-offset:2px}
+.sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.sun{position:absolute;left:60%;bottom:15vh;width:36vmin;height:36vmin;border-radius:50%;background:radial-gradient(circle,#ffe2b0 0,#ffb07a 42%,rgba(255,150,120,0) 70%);opacity:.9}
+#city{position:absolute;left:0;bottom:0;width:100%;height:36vh}
+#city rect{fill:#150d30}
+#city .w{fill:#ffd89a;opacity:.85}
+#city .tw{animation:tw 5s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.15}to{opacity:.95}}
+.app{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:22px 24px 60px}
+.hd{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px}
+.brand{display:flex;align-items:center;gap:10px;font:800 24px "Bricolage Grotesque",system-ui,sans-serif}
+.tabs,.seg{display:flex;background:rgba(20,10,50,.45);padding:3px;border-radius:999px}
+.tabs button,.seg button{background:none;border:0;color:#e9defa;padding:6px 15px;border-radius:999px;cursor:pointer}
+.tabs .on,.seg .on{background:var(--paper);color:var(--ink);font-weight:700}
+.tools{margin-left:auto;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tools input,.tools select{background:rgba(20,10,50,.45);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:8px 15px}
+.tools option{color:var(--ink)}
+::placeholder{color:#d3c8ee}
+.btn{background:var(--apricot);color:#2a1740;border:0;border-radius:999px;padding:9px 18px;font-weight:700;cursor:pointer}
+.hero{padding:46px 0 28px;max-width:780px}
+.hero h1{font-size:clamp(32px,5.2vw,54px);line-height:1.04;font-weight:800;letter-spacing:-.02em}
+.hero p{margin:12px 0 0;font-size:17px;color:#f3e9ff}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+.col{background:rgba(20,10,50,.52);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:14px;min-height:190px}
+.col.over{outline:2px dashed var(--apricot)}
+.col h3{display:flex;justify-content:space-between;align-items:center;font-size:19px;margin:4px 6px 12px}
+.col h3 span{background:rgba(255,255,255,.17);border-radius:999px;padding:0 11px;font:700 13px "DM Sans",sans-serif;line-height:24px}
+.stubs{display:grid;gap:12px}
+.empty{margin:8px 6px;color:#d9ccef}
+.sw{filter:drop-shadow(0 8px 10px rgba(10,4,30,.42))}
+.stub{--m:radial-gradient(circle 9px at 54px 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle 9px at 54px 100%,#0000 97%,#000) bottom/100% 51% no-repeat;-webkit-mask:var(--m);mask:var(--m);display:grid;grid-template-columns:54px 1fr;background:var(--paper);color:var(--ink);border-radius:14px;cursor:pointer}
+.stub[draggable=true]:active{cursor:grabbing}
+.stub .id{display:grid;place-items:center;font:800 17px "Bricolage Grotesque",sans-serif}
+.stub .bd{padding:12px 14px;min-width:0;border-left:2px dashed rgba(35,29,61,.28)}
+.stub h4{font-size:15px;line-height:1.28;font-weight:700}
+.sub{display:flex;gap:12px;flex-wrap:wrap;margin:4px 0 10px;font-size:12.5px;color:var(--muted)}
+.ft{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.pr{display:flex;align-items:center;gap:6px;font-weight:700}
+.pr i{width:9px;height:9px;border-radius:50%}
+.sla{margin-left:auto;font-weight:700}
+.sla.ok{color:#1c7a66}.sla.warn{color:#9a5a05}.sla.bad{color:#c2263f}
+.av{width:26px;height:26px;border-radius:50%;background:#e6dcf7;display:grid;place-items:center;font-weight:700;font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px}
+.paper{background:var(--paper);color:var(--ink);border-radius:18px;padding:22px;box-shadow:0 10px 24px rgba(10,4,30,.32)}
+.paper h3{font-size:19px;margin-bottom:12px}
+.donut{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.donut svg{width:150px}
+.legend{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.pb{display:grid;grid-template-columns:72px 1fr 24px;gap:10px;align-items:center;margin:12px 0}
+.pb div{height:10px;background:#ece4f8;border-radius:9px;overflow:hidden}
+.pb i{display:block;height:100%;border-radius:9px}
+.rate{font:800 60px/1 "Bricolage Grotesque",sans-serif}
+.feed{list-style:none;margin:0;padding:0}
+.feed li{padding:9px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+.feed em,.act em{display:block;font-size:12px;color:var(--muted);font-style:normal}
+.top{display:flex;justify-content:space-between;align-items:end;gap:16px;padding:40px 0 22px}
+.top h1{font-size:clamp(30px,4.5vw,46px);font-weight:800}
+.foot{margin-top:28px}
+.lnk{background:none;border:0;color:#f3e9ff;text-decoration:underline;cursor:pointer;padding:0}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(480px,100%);background:var(--paper);color:var(--ink);z-index:6;transform:translateX(105%);transition:transform .28s;overflow-y:auto;padding:24px;box-shadow:-12px 0 40px rgba(10,4,30,.4)}
+.drawer.open{transform:none}
+.scrim{position:fixed;inset:0;background:rgba(10,4,30,.5);z-index:5;opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.open{opacity:1;pointer-events:auto}
+.dh{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--muted)}
+.drawer h2{font-size:26px;line-height:1.15;margin:8px 0 4px}
+.muted{color:var(--muted)}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+.meta label,dialog label{display:grid;gap:5px;font-size:13px;color:var(--muted)}
+.meta span{color:var(--ink);font-size:15px}
+.f{width:100%;border:1px solid #cdbfe6;background:#fff;color:var(--ink);border-radius:10px;padding:9px 11px}
+.act{list-style:none;padding:0;margin:0 0 16px}
+.act li{border-left:3px solid #d8cbee;padding:2px 0 12px 12px;margin-left:4px}
+.act .sys{color:var(--muted);font-size:14px}
+.act b{display:block}
+.cbtn{background:#2a1740;color:#fff;border:0;border-radius:999px;padding:10px 20px;font-weight:700;cursor:pointer;margin-top:8px}
+.ghost{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;padding:8px 16px;cursor:pointer}
+.x{background:none;border:0;font-size:22px;cursor:pointer;color:var(--ink)}
+dialog{border:0;border-radius:20px;background:var(--paper);color:var(--ink);padding:26px;width:min(500px,92vw)}
+dialog::backdrop{background:rgba(10,4,30,.6);backdrop-filter:blur(4px)}
+dialog h2{margin-bottom:16px}
+dialog label{margin-bottom:12px}
+dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+dialog .acts{display:flex;justify-content:flex-end;gap:10px;align-items:center}
+dialog .ghost{color:var(--ink);border-color:#cdbfe6}
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,30px);background:#2a1740;color:#fff;padding:10px 20px;border-radius:999px;opacity:0;transition:.25s;z-index:9;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.errbar{display:flex;gap:10px;align-items:flex-start;background:var(--paper);color:#a3172f;border-radius:14px;padding:12px 16px;margin-top:18px;font-weight:500}
+.errbar button{margin-left:auto;background:none;border:0;cursor:pointer;color:inherit;font-size:16px}
+@media(max-width:900px){.board{grid-template-columns:1fr}.tools{margin-left:0;width:100%}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"><div class="sun"></div><svg id="city" viewBox="0 0 1600 400" preserveAspectRatio="xMidYMax slice"></svg></div>
+<div class="app">
+  <header class="hd">
+    <div class="brand"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="17" fill="#fbf7ff"/><path d="M22.5 8.2a9.2 9.2 0 1 0 3.3 13.3 8 8 0 0 1-3.3-13.3z" fill="#3d2468"/></svg>Nightdesk</div>
+    <nav class="tabs" aria-label="Views"><button data-v="board">Board</button><button data-v="insights">Insights</button></nav>
+    <div class="tools">
+      <input id="q" type="search" placeholder="Search tickets" aria-label="Search tickets">
+      <select id="fp" aria-label="Filter by priority"></select>
+      <button class="btn" id="si" style="display:none">Sign in</button><span id="who" style="display:none;color:#f3e9ff"></span><button class="ghost" id="so" style="display:none">Sign out</button><div class="seg" id="seg" role="group" aria-label="View as"><button data-r="agent">Agent</button><button data-r="user">Requester</button></div>
+      <button class="btn" data-new>New ticket</button>
+    </div>
+  </header>
+  <main id="main"></main>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Ticket details"></aside>
+<dialog id="dlg">
+  <form id="nf" onsubmit="return false">
+    <h2>New ticket</h2>
+    <label>Title<input class="f" name="title" required maxlength="90" placeholder="Short summary of the problem"></label>
+    <label>What is happening?<textarea class="f" name="desc" rows="4" required maxlength="600" placeholder="Describe the issue and any error message"></textarea></label>
+    <div class="row"><label>Category<select class="f" name="cat"></select></label><label>Priority<select class="f" name="pri"></select></label></div>
+    <div class="acts"><button type="button" class="ghost" id="cx">Cancel</button><button type="button" class="cbtn" id="mk">Create ticket</button></div>
+  </form>
+</dialog>
+<dialog id="adlg">
+  <form id="af" onsubmit="return false">
+    <h2>Sign in to Nightdesk</h2>
+    <label>Name (for new accounts)<input class="f" name="uname" maxlength="40" autocomplete="name"></label>
+    <label>Email<input class="f" name="email" type="email" required autocomplete="email"></label>
+    <label>Password<input class="f" name="pw" type="password" required minlength="6" autocomplete="current-password"></label>
+    <p id="aerr" role="alert" style="color:#c2263f;min-height:1.4em;margin:0 0 8px"></p>
+    <div class="acts"><button type="button" class="ghost" id="asu">Create account</button><button type="button" class="cbtn" id="asi">Sign in</button></div>
+  </form>
+</dialog>
+<div id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const H=36e5, SLA={Critical:4,High:8,Medium:24,Low:72};
+const PC={Critical:'#d6455d',High:'#f0a63a',Medium:'#4b6bdc',Low:'#1f9d8a'};
+const SC={Open:'#4b6bdc','In Progress':'#f0a63a',Resolved:'#1f9d8a'};
+let AGENTS=['Unassigned','Asha K.','Ravi T.','Meera S.'];
+const CATS=['Hardware','Software','Network','Access & Login','Email','Other'];
+const STAT=['Open','In Progress','Resolved'];
+const KEY='nightdesk-v1';
+const S={tickets:[],role:'agent',view:'board',q:'',fp:'',open:null,user:null,err:''};
+/* ---- Supabase config: paste your project values here (Settings > API) ---- */
+const SUPABASE_URL='https://lbknlgksdinzlkhrfrkp.supabase.co', SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxia25sZ2tzZGluemxraHJmcmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzMzUzNzksImV4cCI6MjEwODkxMTM3OX0.7gBILesGOKJLVCTYS_-EMuvMBgLDFZGsFe1RX37HiSw';
+const CLOUD=!SUPABASE_URL.startsWith('YOUR')&&!!window.supabase;
+/* Plain-object headers and no AbortSignal: lets requests work inside sandboxed previews that cannot clone those objects */
+const plainFetch=(u,o)=>{o=o?{...o}:{};if(typeof Headers!=='undefined'&&o.headers instanceof Headers){const h={};o.headers.forEach((v,k)=>{h[k]=v});o.headers=h}delete o.signal;return fetch(u,o)};
+const db=CLOUD?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{global:{fetch:plainFetch}}):null;
+
+/* ---- skyline background ---- */
+(function(){let x=0,s='',i=0;
+  while(x<1620){const w=38+(i*37%5)*14,h=70+(i*53%9)*24;
+    s+=`<rect x="${x}" y="${400-h}" width="${w}" height="${h}"/>`;
+    for(let r=0;r<Math.floor(h/24);r++)for(let c=0;c<Math.floor(w/14);c++)
+      if((i*3+c*5+r*7)%6===0)s+=`<rect class="w${(i+c+r)%4===0?' tw':''}" style="animation-delay:-${(i+c*2+r)%5}s" x="${x+6+c*14}" y="${400-h+10+r*24}" width="6" height="8"/>`;
+    x+=w+5;i++;}
+  $('#city').innerHTML=s;})();
+
+/* ---- data ---- */
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S.tickets))}catch(_){}}
+function load(){try{const r=localStorage.getItem(KEY);if(r){S.tickets=JSON.parse(r);return}}catch(_){}seed()}
+function seed(){
+  const now=Date.now();
+  const m=(t,d,c,p,s,a,r,h,res)=>({id:'',title:t,desc:d,cat:c,pri:p,status:s,assignee:a,requester:r,created:now-h*H,updated:now-h*H/2,resolvedAt:res==null?null:now-h*H+res*H,comments:[],log:[{t:'Ticket created',at:now-h*H}]});
+  S.tickets=[
+    m('VPN keeps disconnecting for remote staff','Users on the Hyderabad VPN drop every 10 to 15 minutes since this morning.','Network','Critical','In Progress','Asha K.','Priya N.',3),
+    m('Laptop will not boot after Windows update','Black screen after the update restarted overnight. Fan runs, nothing on display.','Hardware','High','Open','Unassigned','Rahul M.',6),
+    m('Need access to the shared finance drive','Joined the finance team this week and cannot open the shared drive.','Access & Login','Medium','Open','Ravi T.','Sneha P.',10),
+    m('Outlook not syncing on mobile','New mail does not arrive on the phone app, desktop works fine.','Email','Medium','In Progress','Meera S.','Karthik R.',20),
+    m('Install Adobe Acrobat Pro','Need Acrobat Pro to edit contract PDFs.','Software','Low','Resolved','Ravi T.','Anil K.',30,6),
+    m('Printer on floor 3 is offline','Shows offline for everyone on the floor, restart did not help.','Hardware','Medium','Open','Unassigned','Divya S.',30),
+    m('Password reset for HR portal','Locked out after three wrong attempts.','Access & Login','High','Resolved','Meera S.','Nisha V.',12,2),
+    m('Wi-Fi drops in conference room B','Video calls freeze every few minutes in room B.','Network','High','Open','Asha K.','Vikram J.',9)
+  ].map((t,i)=>(t.id='TKT-'+(1001+i),t));
+  S.tickets[0].comments.push({by:'Asha K. (Agent)',text:'Checking the VPN gateway logs now.',at:now-2*H});
+  save();
+}
+
+/* ---- helpers ---- */
+function dur(ms){const m=Math.floor(ms/6e4),d=Math.floor(m/1440),h=Math.floor(m%1440/60);return d?`${d}d ${h}h`:h?`${h}h ${m%60}m`:`${m}m`}
+function ago(ts){const m=Math.max(0,Math.floor((Date.now()-ts)/6e4));return m<1?'just now':m<60?m+'m ago':m<1440?Math.floor(m/60)+'h ago':Math.floor(m/1440)+'d ago'}
+function sla(t){
+  const due=t.created+SLA[t.pri]*H;
+  if(t.status==='Resolved'){const ok=(t.resolvedAt||Date.now())<=due;return{txt:ok?'SLA met':'SLA missed',cls:ok?'ok':'bad'}}
+  const r=due-Date.now();
+  return r<0?{txt:dur(-r)+' overdue',cls:'bad'}:{txt:dur(r)+' left',cls:r<2*H?'warn':'ok'};
+}
+const ini=a=>a==='Unassigned'?'–':a.split(' ').map(x=>x[0]).join('');
+const filt=()=>{const q=S.q.toLowerCase();return S.tickets.filter(t=>(!S.fp||t.pri===S.fp)&&(!q||(t.id+t.title+t.requester+t.cat).toLowerCase().includes(q))).sort((a,b)=>b.created-a.created)};
+function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),Math.max(2200,m.length*70))}
+
+/* ---- views ---- */
+function stub(t){
+  const s=sla(t),c=PC[t.pri];
+  return `<div class="sw"><article class="stub" data-id="${t.id}" tabindex="0" ${S.role==='agent'?'draggable="true"':''}>
+  <div class="id" style="background:${c};color:${t.pri==='High'?'#231d3d':'#fff'}">${t.id.slice(4)}</div>
+  <div class="bd"><h4>${esc(t.title)}</h4><p class="sub"><span>${esc(t.cat)}</span><span>${esc(t.requester)}</span></p>
+  <div class="ft"><span class="pr"><i style="background:${c}"></i>${t.pri}</span><span class="sla ${s.cls}">${s.txt}</span><span class="av" title="${esc(t.assignee)}">${ini(t.assignee)}</span></div></div></article></div>`;
+}
+function board(){
+  const all=S.tickets,act=all.filter(t=>t.status!=='Resolved'),br=act.filter(t=>sla(t).cls==='bad').length,un=act.filter(t=>t.assignee==='Unassigned').length;
+  const ag=S.role==='agent',list=filt();
+  const head=ag?`<h1>${act.length?`${act.length} tickets need the night shift`:'The queue is clear'}</h1><p>${br} past SLA, ${un} unassigned, ${all.length-act.length} resolved.</p>`
+    :`<h1>Follow your requests from open to resolved</h1><p>Raise a ticket and watch it move across the board.</p>`;
+  const cols=STAT.map(s=>{const items=list.filter(t=>t.status===s);
+    return `<section class="col" data-s="${s}"><h3>${s}<span>${items.length}</span></h3><div class="stubs">${items.map(stub).join('')||`<p class="empty">No ${s.toLowerCase()} tickets.</p>`}</div></section>`}).join('');
+  return `<section class="hero">${head}</section><div class="board">${cols}</div><footer class="foot">${CLOUD?'':'<button class="lnk" data-reset>Reset demo data</button> '}<span style="opacity:.75;font-size:13px">Nightdesk v3 · ${CLOUD?'cloud mode (Supabase)':'demo mode (no database connected)'}</span></footer>`;
+}
+function insights(){
+  const T=S.tickets,cnt=s=>T.filter(t=>t.status===s).length,C=2*Math.PI*52;let off=0;
+  const segs=STAT.map(s=>{const len=T.length?cnt(s)/T.length*C:0;const e=`<circle cx="70" cy="70" r="52" fill="none" stroke="${SC[s]}" stroke-width="16" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;off+=len;return e}).join('');
+  const mx=Math.max(1,...Object.keys(SLA).map(p=>T.filter(t=>t.pri===p).length));
+  const bars=Object.keys(SLA).map(p=>{const n=T.filter(t=>t.pri===p).length;return `<div class="pb"><span>${p}</span><div><i style="width:${n/mx*100}%;background:${PC[p]}"></i></div><b>${n}</b></div>`}).join('');
+  const res=T.filter(t=>t.status==='Resolved'),met=res.filter(t=>sla(t).cls==='ok').length;
+  const feed=T.flatMap(t=>t.log.map(l=>({id:t.id,...l}))).sort((a,b)=>b.at-a.at).slice(0,6).map(l=>`<li data-id="${l.id}"><b>${l.id}</b> ${esc(l.t)}<em>${ago(l.at)}</em></li>`).join('');
+  return `<div class="top"><h1>Insights</h1><button class="ghost" data-csv>Export CSV</button></div>
+  <div class="grid">
+  <div class="paper"><h3>Tickets by status</h3><div class="donut"><svg viewBox="0 0 140 140" role="img" aria-label="Tickets by status">${segs}<text x="70" y="76" text-anchor="middle" font-size="26" font-weight="800" fill="#231d3d">${T.length}</text></svg><ul class="legend">${STAT.map(s=>`<li><i style="background:${SC[s]}"></i>${s}: ${cnt(s)}</li>`).join('')}</ul></div></div>
+  <div class="paper"><h3>Tickets by priority</h3>${bars}</div>
+  <div class="paper"><h3>Resolved within SLA</h3><div class="rate">${res.length?Math.round(met/res.length*100)+'%':'None yet'}</div><p class="muted">${met} of ${res.length} resolved tickets met their SLA.</p></div>
+  <div class="paper"><h3>Recent activity</h3><ul class="feed">${feed}</ul></div></div>`;
+}
+function render(){
+  document.querySelectorAll('[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===S.view));
+  document.querySelectorAll('[data-r]').forEach(b=>b.classList.toggle('on',b.dataset.r===S.role));
+  $('#main').innerHTML=(S.err?'<div class="errbar" role="alert"><span><b>Problem:</b> '+esc(S.err)+'</span><button data-x aria-label="Dismiss">✕</button></div>':'')+(S.view==='board'?board():insights());
+}
+
+/* ---- ticket drawer ---- */
+function closeT(){S.open=null;$('#drawer').classList.remove('open');$('#scrim').classList.remove('open')}
+function upd(t,k,v){
+  if(t[k]===v)return;
+  const lab={status:'Status',pri:'Priority',assignee:'Assignee'}[k];
+  const entry={t:`${lab} changed from ${t[k]} to ${v}`,at:Date.now()};
+  if(CLOUD){
+    const patch={[{status:'status',pri:'priority',assignee:'assignee'}[k]]:v,updated_at:new Date().toISOString(),log:[...t.log,entry]};
+    if(k==='status')patch.resolved_at=v==='Resolved'?new Date().toISOString():null;
+    db.from('tickets').update(patch).eq('id',t._id).then(({error})=>{if(error)fail(error);else{toast('Ticket updated');refresh()}});
+    return;
+  }
+  t.log.push(entry);
+  t[k]=v;t.updated=Date.now();
+  if(k==='status')t.resolvedAt=v==='Resolved'?Date.now():null;
+  save();toast('Ticket updated');render();if(S.open)openT(t.id);
+}
+function openT(id){
+  const t=S.tickets.find(x=>x.id===id);if(!t)return;
+  S.open=id;const ag=S.role==='agent',s=sla(t);
+  const sel=(k,arr,v)=>ag?`<select class="f" data-k="${k}">${arr.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('')}</select>`:`<span>${esc(v)}</span>`;
+  const acts=[...t.log.map(l=>({x:l.t,at:l.at,sys:1})),...t.comments.map(c=>({x:c.text,by:c.by,at:c.at}))].sort((a,b)=>a.at-b.at);
+  $('#drawer').innerHTML=`<div class="dh"><span>${t.id}</span><button class="x" id="cl" aria-label="Close">✕</button></div>
+  <h2>${esc(t.title)}</h2><p class="muted">Raised by ${esc(t.requester)}, ${ago(t.created)}</p><p>${esc(t.desc)}</p>
+  <div class="meta"><label>Status${sel('status',STAT,t.status)}</label><label>Priority${sel('pri',Object.keys(SLA),t.pri)}</label><label>Assignee${sel('assignee',AGENTS,t.assignee)}</label><label>Category<span>${esc(t.cat)}</span></label><label>SLA<span class="sla ${s.cls}" style="margin:0">${s.txt}</span></label></div>
+  <h3>Activity</h3><ul class="act">${acts.map(a=>`<li class="${a.sys?'sys':''}">${a.by?`<b>${esc(a.by)}</b>`:''}${esc(a.x)}<em>${ago(a.at)}</em></li>`).join('')}</ul>
+  <form id="cf" onsubmit="return false"><textarea class="f" name="c" required rows="3" maxlength="500" placeholder="Write a comment"></textarea><button type="button" class="cbtn" id="cp">Post comment</button></form>`;
+  $('#drawer').classList.add('open');$('#scrim').classList.add('open');
+  $('#cl').onclick=closeT;
+  $('#drawer').querySelectorAll('select[data-k]').forEach(el=>el.onchange=()=>upd(t,el.dataset.k,el.value));
+  $('#cp').onclick=()=>{const v=$('#cf').c.value.trim();if(!v)return;
+    if(CLOUD){db.from('comments').insert({ticket_id:t._id,author_name:S.user.name+(ag?' (Agent)':''),body:v}).then(({error})=>{if(error)fail(error);else{toast('Comment posted');refresh()}});return}
+    t.comments.push({by:ag?'Asha K. (Agent)':'You',text:v,at:Date.now()});t.updated=Date.now();save();toast('Comment posted');openT(id)};
+}
+
+/* ---- CSV ---- */
+function csv(){
+  const q=v=>`"${String(v).replace(/"/g,'""')}"`;
+  const rows=[['ID','Title','Category','Priority','Status','Assignee','Requester','Created','SLA']].concat(S.tickets.map(t=>[t.id,t.title,t.cat,t.pri,t.status,t.assignee,t.requester,new Date(t.created).toISOString(),sla(t).txt]));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv'}));
+  a.download='tickets.csv';a.click();URL.revokeObjectURL(a.href);toast('CSV exported');
+}
+
+/* ---- events ---- */
+document.addEventListener('click',e=>{
+  const g=sel=>e.target.closest(sel);
+  if(g('[data-new]'))return $('#dlg').showModal();
+  if(g('[data-x]')){S.err='';return render()}
+  if(g('[data-csv]'))return csv();
+  if(g('[data-reset]')){try{localStorage.removeItem(KEY)}catch(_){}seed();render();return toast('Demo data restored')}
+  const v=g('[data-v]');if(v){S.view=v.dataset.v;return render()}
+  const r=g('[data-r]');if(r){S.role=r.dataset.r;closeT();return render()}
+  const d=g('[data-id]');if(d)openT(d.dataset.id);
+  if(e.target.id==='scrim')closeT();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeT();
+  if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('stub'))openT(e.target.dataset.id);
+});
+/* drag a stub to another column to change its status (agents) */
+document.addEventListener('dragstart',e=>{const s=e.target.closest&&e.target.closest('.stub');if(s)e.dataTransfer.setData('text/plain',s.dataset.id)});
+document.addEventListener('dragover',e=>{const c=e.target.closest&&e.target.closest('.col');if(c){e.preventDefault();document.querySelectorAll('.col.over').forEach(x=>x!==c&&x.classList.remove('over'));c.classList.add('over')}});
+document.addEventListener('dragend',()=>document.querySelectorAll('.col.over').forEach(x=>x.classList.remove('over')));
+document.addEventListener('drop',e=>{
+  const c=e.target.closest&&e.target.closest('.col');if(!c)return;e.preventDefault();
+  const t=S.tickets.find(x=>x.id===e.dataTransfer.getData('text/plain'));
+  document.querySelectorAll('.col.over').forEach(x=>x.classList.remove('over'));
+  if(t&&S.role==='agent')upd(t,'status',c.dataset.s);
+});
+$('#q').oninput=e=>{S.q=e.target.value;if(S.view==='board')render()};
+$('#fp').innerHTML='<option value="">All priorities</option>'+Object.keys(SLA).map(p=>`<option>${p}</option>`).join('');
+$('#fp').onchange=e=>{S.fp=e.target.value;if(S.view==='board')render()};
+$('#nf').cat.innerHTML=CATS.map(c=>`<option>${esc(c)}</option>`).join('');
+$('#nf').pri.innerHTML=Object.keys(SLA).map(p=>`<option${p==='Medium'?' selected':''}>${p}</option>`).join('');
+$('#cx').onclick=()=>$('#dlg').close();
+$('#mk').onclick=()=>{
+  const f=$('#nf');if(!f.reportValidity())return;
+  if(CLOUD){
+    db.from('tickets').insert({title:f.title.value.trim(),description:f.desc.value.trim(),category:f.cat.value,priority:f.pri.value,requester_name:S.user.name,log:[{t:'Ticket created',at:Date.now()}]}).then(({error})=>{
+      if(error)return fail(error);
+      f.reset();$('#dlg').close();S.view='board';S.q='';S.fp='';$('#q').value='';$('#fp').value='';toast('Ticket created');refresh()});
+    return;
+  }
+  const n=Math.max(1000,...S.tickets.map(t=>+t.id.slice(4)))+1,now=Date.now();
+  S.tickets.push({id:'TKT-'+n,title:f.title.value.trim(),desc:f.desc.value.trim(),cat:f.cat.value,pri:f.pri.value,status:'Open',assignee:'Unassigned',requester:'You',created:now,updated:now,resolvedAt:null,comments:[],log:[{t:'Ticket created',at:now}]});
+  f.reset();$('#dlg').close();save();S.view='board';S.q='';S.fp='';$('#q').value='';$('#fp').value='';render();toast('Ticket created');
+};
+setInterval(()=>{if(!S.open&&!$('#dlg').open&&document.activeElement===document.body)render()},60000);
+
+/* ---- Supabase data layer ---- */
+const fromRow=r=>({id:'TKT-'+(1000+r.id),_id:r.id,title:r.title,desc:r.description,cat:r.category,pri:r.priority,status:r.status,assignee:r.assignee,requester:r.requester_name,created:Date.parse(r.created_at),updated:Date.parse(r.updated_at),resolvedAt:r.resolved_at?Date.parse(r.resolved_at):null,log:r.log||[],
+  comments:(r.comments||[]).slice().sort((a,b)=>Date.parse(a.created_at)-Date.parse(b.created_at)).map(c=>({by:c.author_name,text:c.body,at:Date.parse(c.created_at)}))});
+const errText=e=>e?(e.message||e.details||e.hint||JSON.stringify(e)):'Unknown error';
+function fail(e){const m=errText(e),f=friendly(m);console.error('Nightdesk error: '+m);S.err=f+(f!==m?'  Details: '+m:'');render();toast(f)}
+async function diagnose(){
+  const out=[];
+  for(const t of ['profiles','tickets','comments']){const {error}=await db.from(t).select('id').limit(1);if(error)out.push(t+': '+errText(error))}
+  return out;
+}
+const friendly=m=>/does not exist|schema cache|relationship/i.test(m)?'Database tables are missing or incomplete. Run supabase_setup.sql in the Supabase SQL Editor.':/row-level security|permission denied/i.test(m)?'Blocked by security rules ('+m+'). Re-run supabase_setup.sql.':m;
+async function refresh(){
+  let {data,error}=await db.from('tickets').select('*, comments(*)').order('created_at',{ascending:false});
+  if(error){
+    const t=await db.from('tickets').select('*').order('created_at',{ascending:false});
+    if(t.error)return fail(t.error);
+    const c=await db.from('comments').select('*');
+    data=t.data.map(r=>({...r,comments:(c.data||[]).filter(x=>x.ticket_id===r.id)}));
+  }
+  S.err='';S.tickets=data.map(fromRow);render();
+  if(S.open&&document.activeElement.tagName!=='TEXTAREA')openT(S.open);
+}
+async function enter(user){
+  S.err='';
+  let {data:p,error:pe}=await db.from('profiles').select('name,role').eq('id',user.id).maybeSingle();
+  if(!p&&!pe){const nm=(user.user_metadata&&user.user_metadata.name)||(user.email||'user').split('@')[0];const ins=await db.from('profiles').insert({id:user.id,name:nm});if(ins.error)pe=ins.error;else p={name:nm,role:'requester'}}
+  S.user={id:user.id,name:(p&&p.name)||user.email,role:(p&&p.role)||'requester'};
+  S.role=S.user.role==='agent'?'agent':'user';
+  $('#who').textContent=S.user.name+' ('+(S.role==='agent'?'agent':'requester')+')';
+  $('#who').style.display='';$('#so').style.display='';$('#si').style.display='none';
+  if(S.role==='agent'){const {data:a}=await db.from('profiles').select('name').eq('role','agent');AGENTS=['Unassigned',...(a||[]).map(x=>x.name)]}
+  await refresh();
+  if(pe||S.err){const d=await diagnose();S.err=d.length?'Database check failed: '+d.join(' | ')+'. Run supabase_setup.sql in the Supabase SQL Editor.':(pe?errText(pe):S.err);render()}
+  if(!enter.sub){enter.sub=1;db.channel('nightdesk').on('postgres_changes',{event:'*',schema:'public',table:'tickets'},refresh).on('postgres_changes',{event:'*',schema:'public',table:'comments'},refresh).subscribe()}
+}
+function showAuth(){$('#aerr').textContent='';if(!$('#adlg').open)$('#adlg').showModal()}
+async function authGo(signup){
+  const f=$('#af'),err=$('#aerr'),btns=[$('#asi'),$('#asu')];
+  if(!f.reportValidity())return;
+  const email=f.email.value.trim(),password=f.pw.value;
+  err.style.color='#6b6485';err.textContent=signup?'Creating your account…':'Signing in…';
+  btns.forEach(x=>x.disabled=true);
+  try{
+    const r=signup?await db.auth.signUp({email,password,options:{data:{name:f.uname.value.trim()||email.split('@')[0]}}}):await db.auth.signInWithPassword({email,password});
+    err.style.color='#c2263f';
+    if(r.error){err.textContent=r.error.message;return}
+    if(!r.data.session){err.style.color='#6b6485';err.textContent=signup&&r.data.user&&!(r.data.user.identities||[1]).length?'This email is already registered. Use Sign in.':'Account created. Confirm it from the email Supabase sent you, then press Sign in. (Or turn off Confirm email in Supabase.)';return}
+    $('#adlg').close();f.reset();err.textContent='';
+    await enter(r.data.user).catch(fail);
+  }catch(ex){err.style.color='#c2263f';err.textContent='Could not reach Supabase ('+(ex&&ex.message||ex)+'). Check the project URL and key in index.html.'}
+  finally{btns.forEach(x=>x.disabled=false)}
+}
+async function init(){
+  if(!CLOUD){load();render();return}
+  $('#seg').style.display='none';
+  $('#asi').onclick=()=>authGo(false);$('#asu').onclick=()=>authGo(true);
+  $('#si').onclick=showAuth;
+  $('#adlg').addEventListener('click',e=>{const r=e.currentTarget.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.currentTarget.close()});
+  $('#so').onclick=()=>db.auth.signOut();
+  db.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'){S.user=null;S.tickets=[];closeT();$('#who').style.display='none';$('#so').style.display='none';$('#si').style.display='';render();showAuth()}});
+  render();
+  const {data:{session}}=await db.auth.getSession();
+  if(session)enter(session.user).catch(fail);else{$('#si').style.display='';showAuth()}
+}
+window.addEventListener('unhandledrejection',e=>{if(CLOUD){S.err='Unexpected error: '+errText(e.reason);render()}});
+init();
+</script>
+</body>
+</html>
