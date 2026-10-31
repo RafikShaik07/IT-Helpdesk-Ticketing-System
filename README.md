@@ -2,7 +2,7 @@
 
 A helpdesk app where employees raise IT tickets and support agents work them from open to resolved. Tickets appear as ticket stubs on a drag-and-drop board, every ticket has an SLA timer based on its priority, and access is controlled by role.
 
-**Live demo:** [https://YOUR-VERCEL-LINK.vercel.app](https://YOUR-VERCEL-LINK.vercel.app)
+**Live demo:** (https://it-helpdesk-ticketing-system-three.vercel.app/)
 
 ![Nightdesk board](screenshots/board.png)
 
